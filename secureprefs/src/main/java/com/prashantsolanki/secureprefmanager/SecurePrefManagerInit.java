@@ -6,7 +6,7 @@ package com.prashantsolanki.secureprefmanager;
  */
 public class SecurePrefManagerInit {
 
-    private static String encryptionPhase;
+    private static String encryptionPhrase;
     private static boolean useEncryption;
     private static boolean isInit=false;
 
@@ -14,8 +14,8 @@ public class SecurePrefManagerInit {
         return isInit;
     }
 
-    public static String getEncryptionPhase() {
-        return encryptionPhase;
+    public static String getEncryptionPhrase() {
+        return encryptionPhrase;
     }
 
     public static boolean isUseEncryption() {
@@ -25,7 +25,7 @@ public class SecurePrefManagerInit {
     public static class Initializer {
 
         private boolean useEncryption;
-        private String encryptionPhase;
+        private String encryptionPhrase;
 
         public Initializer useEncryption(boolean useEncryption){
             this.useEncryption = useEncryption;
@@ -33,18 +33,18 @@ public class SecurePrefManagerInit {
         }
 
 
-        public Initializer setEncryptionPhase(String encryptionPhase){
-            this.encryptionPhase = encryptionPhase;
+        public Initializer setEncryptionPhrase(String encryptionPhrase){
+            this.encryptionPhrase = encryptionPhrase;
             return this;
         }
 
         public void initialize(){
-            if(useEncryption&&encryptionPhase==null)
+            if(useEncryption&& encryptionPhrase ==null)
                 throw new IllegalStateException("Must set a Encryption Phase");
 
             SecurePrefManagerInit.isInit = true;
             SecurePrefManagerInit.useEncryption = useEncryption;
-            SecurePrefManagerInit.encryptionPhase = encryptionPhase;
+            SecurePrefManagerInit.encryptionPhrase = encryptionPhrase;
         }
 
 

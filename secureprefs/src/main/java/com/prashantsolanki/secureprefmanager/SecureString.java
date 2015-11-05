@@ -12,7 +12,7 @@ public class SecureString {
     private String string;
 
     public SecureString(String string) throws GeneralSecurityException{
-        this.string = AESCrypt.encrypt(SecurePrefManagerInit.getEncryptionPhase(), string);
+        this.string = AESCrypt.encrypt(SecurePrefManagerInit.getEncryptionPhrase(), string);
     }
 
     public String getSecureString() {

@@ -93,7 +93,7 @@ public class SecurePrefManager {
 
                 if(SecurePrefManagerInit.isUseEncryption()) {
                     value = new SecureString(String.valueOf(defaultValue)).getSecureString();
-                    return AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhase(), pref.getString(key, value));
+                    return AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhrase(), pref.getString(key, value));
                 }
 
                 return pref.getString(key, defaultValue);
@@ -114,7 +114,7 @@ public class SecurePrefManager {
                 String value;
                 if(SecurePrefManagerInit.isUseEncryption()) {
                     value = new SecureString(String.valueOf(defaultValue)).getSecureString();
-                    return Float.parseFloat(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhase(), pref.getString(key, value)));
+                    return Float.parseFloat(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhrase(), pref.getString(key, value)));
                 }
 
                 return pref.getFloat(key, defaultValue);
@@ -135,7 +135,7 @@ public class SecurePrefManager {
                 String value;
                 if(SecurePrefManagerInit.isUseEncryption()) {
                     value = new SecureString(String.valueOf(defaultValue)).getSecureString();
-                    return Long.parseLong(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhase(), pref.getString(key, value)));
+                    return Long.parseLong(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhrase(), pref.getString(key, value)));
                 }
 
                 return pref.getLong(key, defaultValue);
@@ -156,7 +156,7 @@ public class SecurePrefManager {
                 String value;
                 if(SecurePrefManagerInit.isUseEncryption()) {
                     value = new SecureString(String.valueOf(defaultValue)).getSecureString();
-                    return Integer.parseInt(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhase(), pref.getString(key, value)));
+                    return Integer.parseInt(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhrase(), pref.getString(key, value)));
                 }
 
                 return pref.getInt(key, defaultValue);
@@ -177,7 +177,7 @@ public class SecurePrefManager {
                 String value;
                 if(SecurePrefManagerInit.isUseEncryption()) {
                     value = new SecureString(String.valueOf(defaultValue)).getSecureString();
-                     return Boolean.parseBoolean(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhase(), pref.getString(key, value)));
+                     return Boolean.parseBoolean(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhrase(), pref.getString(key, value)));
                 }
 
                 return pref.getBoolean(key,defaultValue);
