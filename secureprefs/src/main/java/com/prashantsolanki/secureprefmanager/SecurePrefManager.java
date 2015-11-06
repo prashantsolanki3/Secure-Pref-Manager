@@ -4,11 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.scottyab.aescrypt.AESCrypt;
-
-import java.security.GeneralSecurityException;
 
 /**
+ *
  * Created by Prashant on 11/5/2015.
  */
 public class SecurePrefManager {
@@ -30,26 +28,41 @@ public class SecurePrefManager {
         return new SecurePrefManager(context);
     }
 
-    public Setter set(String key) throws GeneralSecurityException{
-        if(SecurePrefManagerInit.isUseEncryption())
-            key =new SecureString(key).getSecureString();
-
-        return new Setter(key);
+    public Setter set(String key){
+        try {
+            return new Setter(SecurePrefManagerInit.getEncryptor().encrypt(key));
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public Setter set(SecureString key) throws GeneralSecurityException{
+    public Setter set(SecureString key) {
+        try{
         return new Setter(key.getSecureString());
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public Getter get(SecureString key) throws GeneralSecurityException{
-        return new Getter(key.getSecureString());
+    public Getter get(SecureString key){
+        try {
+            return new Getter(key.getSecureString());
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
-    public Getter get(String key) throws GeneralSecurityException{
-        if(SecurePrefManagerInit.isUseEncryption())
-            key =new SecureString(key).getSecureString();
-
-        return new Getter(key);
+    public Getter get(String key) {
+        try{
+        return new Getter(SecurePrefManagerInit.getEncryptor().encrypt(key));
+    }catch (Exception e){
+        e.printStackTrace();
+            return null;
+        }
     }
 
     public static class Getter{
@@ -87,16 +100,16 @@ public class SecurePrefManager {
                 super(key);
                 this.defaultValue = defaultValue;
             }
-
-            public String go() throws GeneralSecurityException{
-                String value;
-
-                if(SecurePrefManagerInit.isUseEncryption()) {
-                    value = new SecureString(String.valueOf(defaultValue)).getSecureString();
-                    return AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhrase(), pref.getString(key, value));
+            public String go() {
+                try {
+                    return SecurePrefManagerInit.getEncryptor()
+                            .decrypt(pref.getString(key,
+                                    SecurePrefManagerInit.getEncryptor()
+                                            .encrypt(String.valueOf(defaultValue))));
+                }catch (Exception e){
+                    e.printStackTrace();
+                    return null;
                 }
-
-                return pref.getString(key, defaultValue);
             }
 
         }
@@ -110,17 +123,20 @@ public class SecurePrefManager {
                 this.defaultValue = defaultValue;
             }
 
-            public Float go() throws GeneralSecurityException{
-                String value;
-                if(SecurePrefManagerInit.isUseEncryption()) {
-                    value = new SecureString(String.valueOf(defaultValue)).getSecureString();
-                    return Float.parseFloat(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhrase(), pref.getString(key, value)));
-                }
-
-                return pref.getFloat(key, defaultValue);
+            public Float go(){
+             try {
+                    return Float.parseFloat(SecurePrefManagerInit.getEncryptor()
+                            .decrypt(pref.getString(key,
+                                    SecurePrefManagerInit.getEncryptor()
+                                            .encrypt(String.valueOf(defaultValue)))));
+            }catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
             }
 
-        }
+            }
+
 
         public static class DefaultValueLong extends DefaultValue {
 
@@ -130,15 +146,16 @@ public class SecurePrefManager {
                 super(key);
                 this.defaultValue = defaultValue;
             }
-
-            public Long go() throws GeneralSecurityException{
-                String value;
-                if(SecurePrefManagerInit.isUseEncryption()) {
-                    value = new SecureString(String.valueOf(defaultValue)).getSecureString();
-                    return Long.parseLong(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhrase(), pref.getString(key, value)));
-                }
-
-                return pref.getLong(key, defaultValue);
+            public Long go(){
+             try {
+                    return Long.parseLong(SecurePrefManagerInit.getEncryptor()
+                            .decrypt(pref.getString(key,
+                                    SecurePrefManagerInit.getEncryptor()
+                                            .encrypt(String.valueOf(defaultValue)))));
+            }catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
             }
 
         }
@@ -152,14 +169,14 @@ public class SecurePrefManager {
                 this.defaultValue = defaultValue;
             }
 
-            public Integer go() throws GeneralSecurityException{
-                String value;
-                if(SecurePrefManagerInit.isUseEncryption()) {
-                    value = new SecureString(String.valueOf(defaultValue)).getSecureString();
-                    return Integer.parseInt(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhrase(), pref.getString(key, value)));
+            public Integer go(){
+                    try {
+                        return Integer.parseInt(SecurePrefManagerInit.getEncryptor().decrypt(pref.getString(key, SecurePrefManagerInit.getEncryptor()
+                                .encrypt(String.valueOf(defaultValue)))));
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    return null;
                 }
-
-                return pref.getInt(key, defaultValue);
             }
 
         }
@@ -173,15 +190,15 @@ public class SecurePrefManager {
                 this.defaultValue = defaultValue;
             }
 
-            public Boolean go() throws GeneralSecurityException{
-                String value;
-                if(SecurePrefManagerInit.isUseEncryption()) {
-                    value = new SecureString(String.valueOf(defaultValue)).getSecureString();
-                     return Boolean.parseBoolean(AESCrypt.decrypt(SecurePrefManagerInit.getEncryptionPhrase(), pref.getString(key, value)));
+            public Boolean go(){
+                try {
+                     return Boolean.parseBoolean(SecurePrefManagerInit.getEncryptor().decrypt(pref.getString(key, SecurePrefManagerInit.getEncryptor()
+                             .encrypt(String.valueOf(defaultValue)))));
+                }catch (Exception e){
+                    e.printStackTrace();
+                    return null;
                 }
-
-                return pref.getBoolean(key,defaultValue);
-            }
+                }
 
         }
 
@@ -229,12 +246,17 @@ public class SecurePrefManager {
             return this;
         }
 
-        public void go() throws GeneralSecurityException{
+        public void go(){
+
             if(value.length()<1)
                 throw new IllegalArgumentException("Value cannot be empty");
 
-            if(SecurePrefManagerInit.isUseEncryption())
-                value = new SecureString(value).getSecureString();
+                try{
+                value = SecurePrefManagerInit.getEncryptor().encrypt(value);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    throw new IllegalArgumentException();
+                }
 
             editor.putString(key, value);
             editor.apply();

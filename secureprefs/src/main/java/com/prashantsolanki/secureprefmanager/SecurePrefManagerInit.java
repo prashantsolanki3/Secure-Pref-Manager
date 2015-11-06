@@ -1,50 +1,65 @@
 package com.prashantsolanki.secureprefmanager;
 
+import android.content.Context;
+
 /**
  *
  * Created by Prashant on 11/5/2015.
  */
 public class SecurePrefManagerInit {
 
-    private static String encryptionPhrase;
-    private static boolean useEncryption;
     private static boolean isInit=false;
+    private static Encryptor encryptor;
+    private static Context context;
+
+
+    public static Encryptor getEncryptor() {
+        return encryptor;
+    }
+
+    public static Context getContext() {
+        return context;
+    }
 
     public static boolean isInit() {
         return isInit;
     }
 
-    public static String getEncryptionPhrase() {
-        return encryptionPhrase;
-    }
-
-    public static boolean isUseEncryption() {
-        return useEncryption;
-    }
 
     public static class Initializer {
 
+
+        private Context context;
         private boolean useEncryption;
-        private String encryptionPhrase;
+        private Encryptor encryptor=null;
+
+        public Initializer(Context context) {
+            this.context = context;
+        }
 
         public Initializer useEncryption(boolean useEncryption){
             this.useEncryption = useEncryption;
             return this;
         }
 
+        public void initialize(){
+            if(!useEncryption)
+                //No Encryption
+                SecurePrefManagerInit.encryptor = new BlankEncryptor(context);
+           else if(encryptor==null)
+                //Default Encryption
+                SecurePrefManagerInit.encryptor = new AESEncryptor(context);
+            else
+                //User Defined Encryption Algorithm
+                SecurePrefManagerInit.encryptor = encryptor;
 
-        public Initializer setEncryptionPhrase(String encryptionPhrase){
-            this.encryptionPhrase = encryptionPhrase;
-            return this;
+            SecurePrefManagerInit.context = context;
+            SecurePrefManagerInit.isInit = true;
         }
 
-        public void initialize(){
-            if(useEncryption&& encryptionPhrase ==null)
-                throw new IllegalStateException("Must set a Encryption Phase");
-
-            SecurePrefManagerInit.isInit = true;
-            SecurePrefManagerInit.useEncryption = useEncryption;
-            SecurePrefManagerInit.encryptionPhrase = encryptionPhrase;
+        public Initializer setCustomEncryption(Encryptor encryptor){
+            this.encryptor = encryptor;
+            return this;
         }
 
 
