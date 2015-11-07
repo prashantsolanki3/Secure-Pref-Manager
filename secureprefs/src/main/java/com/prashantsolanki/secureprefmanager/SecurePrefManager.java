@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.prashantsolanki.secureprefmanager.utils.HidePreferences;
+import com.prashantsolanki.secureprefmanager.utils.SecureString;
+
 
 /**
  *
@@ -15,8 +18,12 @@ public class SecurePrefManager {
     static SharedPreferences pref;
     // Editor for Shared preferences
     static SharedPreferences.Editor editor;
+    public static boolean isHidden;
+
+    private Context context;
 
     private SecurePrefManager(Context context) {
+        this.context=context;
         pref = PreferenceManager.getDefaultSharedPreferences(context);
         editor = pref.edit();
     }
@@ -26,6 +33,27 @@ public class SecurePrefManager {
             throw new IllegalStateException("SecurePrefManagerInit must be initialized before calling SecurePrefManager");
 
         return new SecurePrefManager(context);
+    }
+
+    public Deleter clear(){
+        return new Deleter(null);
+    }
+
+    public Deleter remove(String key){
+        try {
+            return new Deleter(SecurePrefManagerInit.getEncryptor().encrypt(key));
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void hide(HidePreferences.PreferenceUpdateListener listener){
+        new HidePreferences(context,true,listener);
+    }
+
+    public void unhide(HidePreferences.PreferenceUpdateListener listener){
+        new HidePreferences(context,false,listener);
     }
 
     public Setter set(String key){
@@ -108,7 +136,7 @@ public class SecurePrefManager {
                                             .encrypt(String.valueOf(defaultValue))));
                 }catch (Exception e){
                     e.printStackTrace();
-                    return null;
+                    return defaultValue;
                 }
             }
 
@@ -171,8 +199,10 @@ public class SecurePrefManager {
 
             public Integer go(){
                     try {
-                        return Integer.parseInt(SecurePrefManagerInit.getEncryptor().decrypt(pref.getString(key, SecurePrefManagerInit.getEncryptor()
-                                .encrypt(String.valueOf(defaultValue)))));
+                        return Integer.parseInt(SecurePrefManagerInit.getEncryptor()
+                                .decrypt(pref.getString(key,
+                                        SecurePrefManagerInit.getEncryptor()
+                                                .encrypt(String.valueOf(defaultValue)))));
                     }catch (Exception e){
                         e.printStackTrace();
                     return null;
@@ -260,6 +290,27 @@ public class SecurePrefManager {
 
             editor.putString(key, value);
             editor.apply();
+        }
+    }
+
+
+    public static class Deleter{
+
+        final String valueToBeDeleted;
+
+        public Deleter(String valueToBeDeleted) {
+            this.valueToBeDeleted = valueToBeDeleted;
+        }
+
+        public void confirm(){
+
+            if(valueToBeDeleted!=null)
+                editor.remove(valueToBeDeleted);
+            else
+                editor.clear();
+
+            editor.apply();
+
         }
     }
 

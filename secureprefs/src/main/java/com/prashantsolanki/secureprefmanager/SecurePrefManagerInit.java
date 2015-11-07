@@ -2,6 +2,10 @@ package com.prashantsolanki.secureprefmanager;
 
 import android.content.Context;
 
+import com.prashantsolanki.secureprefmanager.encryptor.AESEncryptor;
+import com.prashantsolanki.secureprefmanager.encryptor.BlankEncryptor;
+import com.prashantsolanki.secureprefmanager.encryptor.Encryptor;
+
 /**
  *
  * Created by Prashant on 11/5/2015.

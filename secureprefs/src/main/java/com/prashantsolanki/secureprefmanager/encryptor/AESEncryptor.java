@@ -1,20 +1,24 @@
-package com.prashantsolanki.secureprefmanager;
+package com.prashantsolanki.secureprefmanager.encryptor;
 
 import android.content.Context;
 import android.util.Base64;
 
 import com.scottyab.aescrypt.AESCrypt;
 
+import javax.crypto.Cipher;
+
 /**
+ *
  * Created by Prashant on 11/6/2015.
  */
 public class AESEncryptor extends Encryptor{
 
-    private final String passPhrase;
-
     public AESEncryptor(Context context) {
         super(context);
-        this.passPhrase = Base64.encodeToString(context.getApplicationInfo().packageName.getBytes(),Base64.DEFAULT);
+    }
+
+    public AESEncryptor(Context context,String encryptionKeyPhrase) {
+        super(context,encryptionKeyPhrase);
     }
 
     @Override

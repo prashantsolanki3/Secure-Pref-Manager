@@ -1,4 +1,6 @@
-package com.prashantsolanki.secureprefmanager;
+package com.prashantsolanki.secureprefmanager.utils;
+
+import com.prashantsolanki.secureprefmanager.SecurePrefManagerInit;
 
 /**
  * Created by Prashant on 11/5/2015.

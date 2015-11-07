@@ -1,4 +1,4 @@
-package com.prashantsolanki.secureprefmanager;
+package com.prashantsolanki.secureprefmanager.encryptor;
 
 import android.content.Context;
 
