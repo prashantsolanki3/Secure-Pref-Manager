@@ -82,6 +82,11 @@ dependencies {
                 .go();
 ```
 
+### Hide Preferences from 3rd Party applications
+
+
+
+
 
 ### Have Fun!
 
