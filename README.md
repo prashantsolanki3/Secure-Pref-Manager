@@ -1,7 +1,7 @@
 # Secure-Pref-Manager
-
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Secure%20Preference%20Manager-brightgreen.svg?style=flat-square)](http://android-arsenal.com/details/1/2747)
 ##Secure Preference Manager is a simple Library to help you protect your Shared Preferences.
-Secure Preference Manager for android. It uses AES Encryption to protect your application's Shared Preferences.
+Secure Preference Manager for android. It uses various encryption techniques to protect your application's Shared Preferences.
 
 ##Setup
 Add jitpack to your project’s repositories.
@@ -84,8 +84,54 @@ dependencies {
 
 ### Hide Preferences from 3rd Party applications
 
+* Unhide Preferences when the activity starts
+```
+@Override
+    protected void onStart() {
+        super.onStart();
+        SecurePrefManager.with(getApplicationContext())
+                .unhide(new HidePreferences.PreferenceUpdateListener() {
+                    @Override
+                    public void onFailure() {
+                        Log.d("unhiding", "Failed");
+                    }
 
+                    @Override
+                    public void onProgress(int p, int max) {
+                        Log.d("unhiding", "Progress: " + p + "/" + max);
+                    }
 
+                    @Override
+                    public void onSuccess() {
+                        Log.d("unhiding", "Success");
+                    }
+                });
+    }
+```
+* Hide preferences when leaving the activity
+
+```
+@Override
+    protected void onPause() {
+        SecurePrefManager.with(getApplicationContext())
+                .hide(new HidePreferences.PreferenceUpdateListener() {
+                    @Override
+                    public void onFailure() {
+
+                    }
+
+                    @Override
+                    public void onProgress(int p, int max) {
+
+                    }
+
+                    @Override
+                    public void onSuccess() {
+
+                    }
+                });
+    }
+```
 
 
 ### Have Fun!
