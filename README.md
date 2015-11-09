@@ -17,7 +17,7 @@ Then add Secure-Pref-Manager to your Module’s dependencies
 
 ```
 dependencies {
-	        compile 'com.github.prashantsolanki3:Secure-Pref-Manager:0.20'
+	        compile 'com.github.prashantsolanki3:Secure-Pref-Manager:0.25'
 	}
 ```
 
