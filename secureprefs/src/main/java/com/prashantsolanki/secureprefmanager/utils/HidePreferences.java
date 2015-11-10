@@ -3,9 +3,9 @@ package com.prashantsolanki.secureprefmanager.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.Log;
 
 import com.prashantsolanki.secureprefmanager.SecurePrefManager;
@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,6 +70,8 @@ public class HidePreferences {
 
     Context context;
     SharedPreferences preferences;
+    String fileName;
+
 
     public HidePreferences(Context context,boolean hide,PreferenceUpdateListener listener) {
         this.context = context;
@@ -78,6 +81,8 @@ public class HidePreferences {
         else
             addPreferencesToXml(listener);
 
+        fileName= Base64.encodeToString(context.getApplicationInfo().packageName.getBytes(Charset.forName("UTF-8")), Base64.NO_PADDING);
+
     }
 
     private void saveAndClearPreferences(PreferenceUpdateListener listener){
@@ -85,7 +90,7 @@ public class HidePreferences {
     }
 
     private Map<String,String> retrievePreferencesFromFile(){
-        return MapJsonConverter.revert(getCache(context,"bullshit"));
+        return MapJsonConverter.revert(getCache(context,fileName));
     }
 
     private void addPreferencesToXml(PreferenceUpdateListener listener){
@@ -134,6 +139,7 @@ public class HidePreferences {
             listener.onSuccess();
             end = SystemClock.elapsedRealtime();
             Log.d(getClass().getSimpleName(), "Time: " + (end - start));
+            SecurePrefManager.isHidden = true;
         }
     }
 
@@ -169,7 +175,7 @@ public class HidePreferences {
             }
             String json =MapJsonConverter.convert(stringMap);
             Log.d("hiding","size"+stringMap.size()+"json: "+json);
-            addToCache(context, json, "bullshit");
+            addToCache(context, json,fileName);
 
             return null;
         }
@@ -181,6 +187,7 @@ public class HidePreferences {
             listener.onSuccess();
             end = SystemClock.elapsedRealtime();
             Log.d(getClass().getSimpleName(),"Time: "+(end-start));
+            SecurePrefManager.isHidden = true;
             super.onPostExecute(aVoid);
         }
     }

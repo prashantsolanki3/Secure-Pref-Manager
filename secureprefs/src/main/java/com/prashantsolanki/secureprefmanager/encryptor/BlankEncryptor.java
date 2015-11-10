@@ -8,7 +8,7 @@ import android.content.Context;
 public class BlankEncryptor extends Encryptor{
 
     public BlankEncryptor(Context context) {
-        super(context);
+        super(context,"");
     }
 
     @Override

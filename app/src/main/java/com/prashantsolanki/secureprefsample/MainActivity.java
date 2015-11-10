@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onPause() {
+        super.onPause();
         SecurePrefManager.with(getApplicationContext())
                 .hide(new HidePreferences.PreferenceUpdateListener() {
                     @Override
@@ -71,6 +72,6 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
-        super.onPause();
+
     }
 }

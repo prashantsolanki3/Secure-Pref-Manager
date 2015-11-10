@@ -49,6 +49,7 @@ public class SecurePrefManager {
     }
 
     public void hide(HidePreferences.PreferenceUpdateListener listener){
+
         new HidePreferences(context,true,listener);
     }
 

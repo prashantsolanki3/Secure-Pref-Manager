@@ -21,6 +21,8 @@ public class SecurePrefManagerInit {
         return encryptor;
     }
 
+
+
     public static Context getContext() {
         return context;
     }

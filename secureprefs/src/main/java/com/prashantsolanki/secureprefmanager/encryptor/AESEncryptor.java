@@ -1,11 +1,8 @@
 package com.prashantsolanki.secureprefmanager.encryptor;
 
 import android.content.Context;
-import android.util.Base64;
 
 import com.scottyab.aescrypt.AESCrypt;
-
-import javax.crypto.Cipher;
 
 /**
  *
@@ -14,11 +11,11 @@ import javax.crypto.Cipher;
 public class AESEncryptor extends Encryptor{
 
     public AESEncryptor(Context context) {
-        super(context);
+        super(context,"AES");
     }
 
     public AESEncryptor(Context context,String encryptionKeyPhrase) {
-        super(context,encryptionKeyPhrase);
+        super(context,encryptionKeyPhrase,"AES");
     }
 
     @Override

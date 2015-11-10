@@ -13,31 +13,40 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public abstract class Encryptor {
 
-    final byte[] ivBytes = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     Context context;
     final String passPhrase;
     private Key key;
+    private String algorithmName;
 
-    public Encryptor(Context context) {
+    public Encryptor(Context context,String algorithmName) {
         this.context = context;
+        this.algorithmName = algorithmName;
         this.passPhrase = Base64.encodeToString(context.getApplicationInfo().packageName.getBytes(Charset.forName("UTF-8")), Base64.NO_PADDING);
-        generateKey();
+
+        generateKey(algorithmName);
     }
 
 
-    public Encryptor(Context context,String passPhrase) {
+    public Encryptor(Context context,String passPhrase,String algorithmName) {
         this.passPhrase = passPhrase;
         this.context = context;
-        generateKey();
+        this.algorithmName = algorithmName;
+        generateKey(algorithmName);
     }
 
-    void generateKey(){
+
+    void generateKey(String algorithmName){
         try {
             // Create key and cipher
-            key = new SecretKeySpec(passPhrase.getBytes(Charset.forName("UTF-8")), "Blowfish");
+            key = new SecretKeySpec(passPhrase.getBytes(Charset.forName("UTF-8")), algorithmName);
         }catch(Exception e) {
             e.printStackTrace();
+            key=null;
         }
+    }
+
+    public String getAlgorithmName() {
+        return algorithmName;
     }
 
     public Key getKey() {
