@@ -82,7 +82,7 @@ dependencies {
                 .go();
 ```
 
-### Hide Preferences from 3rd Party applications
+### Hide Preferences from 3rd Party applications (EXPERIMENTAL)
 
 * Unhide Preferences when the activity starts
 ```
