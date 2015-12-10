@@ -1,19 +1,8 @@
 package com.prashantsolanki.secureprefsample;
 
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.provider.Settings;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.View;
-
-import com.prashantsolanki.secureprefmanager.SecurePrefManager;
-import com.prashantsolanki.secureprefmanager.SecurePrefManagerInit;
-import com.prashantsolanki.secureprefmanager.encryptor.BlowFishEncryptor;
-import com.prashantsolanki.secureprefmanager.utils.HidePreferences;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        SecurePrefManager.with(getApplicationContext())
+        /*SecurePrefManager.with(getApplicationContext())
                 .unhide(new HidePreferences.PreferenceUpdateListener() {
                     @Override
                     public void onFailure() {
@@ -46,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess() {
                         Log.d("unhiding", "Success");
                     }
-                });
+                });*/
     }
 
     /**
@@ -55,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        SecurePrefManager.with(getApplicationContext())
+        /*SecurePrefManager.with(getApplicationContext())
                 .hide(new HidePreferences.PreferenceUpdateListener() {
                     @Override
                     public void onFailure() {
@@ -71,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess() {
 
                     }
-                });
+                });*/
 
     }
 }

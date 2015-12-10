@@ -3,6 +3,7 @@ package com.prashantsolanki.secureprefmanager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 
 import com.prashantsolanki.secureprefmanager.utils.HidePreferences;
 import com.prashantsolanki.secureprefmanager.utils.SecureString;
@@ -22,9 +23,14 @@ public class SecurePrefManager {
 
     private Context context;
 
-    private SecurePrefManager(Context context) {
+    private SecurePrefManager(Context context,@Nullable String fileName,@Nullable Integer mode) {
         this.context=context;
-        pref = PreferenceManager.getDefaultSharedPreferences(context);
+        if(fileName==null)
+            pref = PreferenceManager.getDefaultSharedPreferences(context);
+        else if (mode !=null)
+            pref = context.getSharedPreferences(fileName, mode);
+
+
         editor = pref.edit();
     }
 
@@ -32,9 +38,15 @@ public class SecurePrefManager {
         if(!SecurePrefManagerInit.isInit())
             throw new IllegalStateException("SecurePrefManagerInit must be initialized before calling SecurePrefManager");
 
-        return new SecurePrefManager(context);
+        return new SecurePrefManager(context,null,null);
     }
 
+    public static SecurePrefManager with(Context context,String preferenceFileName){
+        if(!SecurePrefManagerInit.isInit())
+            throw new IllegalStateException("SecurePrefManagerInit must be initialized before calling SecurePrefManager");
+
+        return new SecurePrefManager(context,preferenceFileName,Context.MODE_PRIVATE);
+    }
     public Deleter clear(){
         return new Deleter(null);
     }
@@ -277,6 +289,9 @@ public class SecurePrefManager {
             return this;
         }
 
+        /**
+         * Sets the the given value to preferences.
+         * */
         public void go(){
 
             if(value.length()<1)
@@ -299,10 +314,13 @@ public class SecurePrefManager {
 
         final String valueToBeDeleted;
 
-        public Deleter(String valueToBeDeleted) {
+        public Deleter(@Nullable String valueToBeDeleted) {
             this.valueToBeDeleted = valueToBeDeleted;
         }
 
+        /**
+         * Confirm deletion.
+         * */
         public void confirm(){
 
             if(valueToBeDeleted!=null)

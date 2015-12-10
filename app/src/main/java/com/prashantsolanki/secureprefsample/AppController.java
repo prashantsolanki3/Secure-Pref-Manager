@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.prashantsolanki.secureprefmanager.SecurePrefManager;
 import com.prashantsolanki.secureprefmanager.SecurePrefManagerInit;
+import com.prashantsolanki.secureprefmanager.encryptor.BlowFishEncryptor;
 
 /**
  * Created by Prashant on 11/7/2015.
@@ -14,25 +15,43 @@ public class AppController extends Application{
     public void onCreate() {
         super.onCreate();
 
-        new SecurePrefManagerInit.Initializer(this)
-                .useEncryption(true)
-                .initialize();
+        try {
+
+            new SecurePrefManagerInit.Initializer(this)
+                    .useEncryption(true)
+                    .setCustomEncryption(new BlowFishEncryptor(getApplicationContext()))
+                    .initialize();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
+        SecurePrefManager.with(getApplicationContext())
+                .clear()
+                .confirm();
+
+        SecurePrefManager.with(getApplicationContext(),"yo")
+                .clear()
+                .confirm();
+
+        SecurePrefManager.with(getApplicationContext(),"whatsup")
+                .clear()
+                .confirm();
 
 
         for(int i =0;i<25;++i) {
-            SecurePrefManager.with(getApplicationContext())
+            SecurePrefManager.with(getApplicationContext(),"yo")
                     .set("String" + i)
                     .value("value" + i)
                     .go();
 
-            SecurePrefManager.with(getApplicationContext())
+            SecurePrefManager.with(getApplicationContext(),"whatsup")
                     .set("int" + i)
                     .value(i)
                     .go();
 
-            SecurePrefManager.with(getApplicationContext())
+            SecurePrefManager.with(getApplicationContext(),"yeaaah")
                     .set("bool" + i)
                     .value(i % 2 == 0)
                     .go();

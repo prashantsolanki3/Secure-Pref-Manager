@@ -16,12 +16,9 @@ public class SecurePrefManagerInit {
     private static Encryptor encryptor;
     private static Context context;
 
-
     public static Encryptor getEncryptor() {
         return encryptor;
     }
-
-
 
     public static Context getContext() {
         return context;
@@ -30,7 +27,6 @@ public class SecurePrefManagerInit {
     public static boolean isInit() {
         return isInit;
     }
-
 
     public static class Initializer {
 
@@ -48,7 +44,7 @@ public class SecurePrefManagerInit {
             return this;
         }
 
-        public void initialize(){
+        public void initialize() throws Exception{
             if(!useEncryption)
                 //No Encryption
                 SecurePrefManagerInit.encryptor = new BlankEncryptor(context);
@@ -58,6 +54,7 @@ public class SecurePrefManagerInit {
             else
                 //User Defined Encryption Algorithm
                 SecurePrefManagerInit.encryptor = encryptor;
+
 
             SecurePrefManagerInit.context = context;
             SecurePrefManagerInit.isInit = true;

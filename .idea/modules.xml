@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SecurePrefSample.iml" filepath="$PROJECT_DIR$/SecurePrefSample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Secure-Pref-Manager.iml" filepath="$PROJECT_DIR$/Secure-Pref-Manager.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/secureprefs/secureprefs.iml" filepath="$PROJECT_DIR$/secureprefs/secureprefs.iml" />
     </modules>
