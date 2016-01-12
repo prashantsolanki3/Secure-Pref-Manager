@@ -29,7 +29,8 @@ public class SecurePrefManager {
             pref = PreferenceManager.getDefaultSharedPreferences(context);
         else if (mode !=null)
             pref = context.getSharedPreferences(fileName, mode);
-
+        else
+            pref = context.getSharedPreferences(fileName, Context.MODE_PRIVATE);
 
         editor = pref.edit();
     }

@@ -24,6 +24,12 @@ public class SecurePrefManagerInit {
         return context;
     }
 
+    static void clear(){
+        isInit = false;
+        encryptor = null;
+        context = null;
+    }
+
     public static boolean isInit() {
         return isInit;
     }
