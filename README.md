@@ -1,5 +1,6 @@
 # Secure-Pref-Manager
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Secure%20Preference%20Manager-brightgreen.svg?style=flat-square)](http://android-arsenal.com/details/1/2747)
+[![Travis CI](https://travis-ci.org/prashantsolanki3/Secure-Pref-Manager.svg)](https://travis-ci.org/prashantsolanki3/Secure-Pref-Manager)
 ##Secure Preference Manager is a simple Library to help you protect your Shared Preferences.
 Secure Preference Manager for android. It uses various encryption techniques to protect your application's Shared Preferences.
 
