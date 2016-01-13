@@ -5,6 +5,7 @@ import com.prashantsolanki.secureprefmanager.SecurePrefManagerInit;
 /**
  * Created by Prashant on 11/5/2015.
  */
+@Deprecated
 public class SecureString {
 
     private String string;

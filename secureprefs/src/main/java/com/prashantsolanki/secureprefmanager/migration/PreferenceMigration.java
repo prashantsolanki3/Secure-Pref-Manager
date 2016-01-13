@@ -1,7 +1,8 @@
-package com.prashantsolanki.secureprefmanager;
+package com.prashantsolanki.secureprefmanager.migration;
 
 import android.content.Context;
 
+import com.prashantsolanki.secureprefmanager.SecurePrefManager;
 import com.prashantsolanki.secureprefmanager.encryptor.BlankEncryptor;
 import com.prashantsolanki.secureprefmanager.encryptor.Encryptor;
 
@@ -92,24 +93,10 @@ public class PreferenceMigration {
         }
 
         private void fetch(){
-            SecurePrefManager.with(context,oldPreferenceFile)
+            SecurePrefManager.with(context, oldPreferenceFile)
                     .get("")
                     .defaultValue(true)
                     .go();
-        }
-
-        private void initSPMOld() throws Exception{
-           new SecurePrefManagerInit.Initializer(context)
-                   .useEncryption(true)
-                   .setCustomEncryption(oldEncryption)
-                   .initialize();
-        }
-
-        private void initSPMNew() throws Exception{
-            new SecurePrefManagerInit.Initializer(context)
-                    .useEncryption(true)
-                    .setCustomEncryption(newEncryption)
-                    .initialize();
         }
     }
 

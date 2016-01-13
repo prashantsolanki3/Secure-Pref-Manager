@@ -2,6 +2,7 @@ package com.prashantsolanki.secureprefsample;
 
 import android.app.Application;
 
+import com.prashantsolanki.secureprefmanager.SPM;
 import com.prashantsolanki.secureprefmanager.SecurePrefManager;
 import com.prashantsolanki.secureprefmanager.SecurePrefManagerInit;
 import com.prashantsolanki.secureprefmanager.encryptor.BlowFishEncryptor;
@@ -60,6 +61,12 @@ public class AppController extends Application{
                     .set("long" + i)
                     .value(Long.valueOf("" + i))
                     .go();
+
+            SPM.with(new SecurePrefManagerInit.Configuration(getApplicationContext())
+                    .setPreferenceFile("config"))
+            .set("config_test"+i)
+            .value(i)
+            .go();
 
         }
 

@@ -8,6 +8,9 @@ import android.support.annotation.Nullable;
 import com.prashantsolanki.secureprefmanager.utils.HidePreferences;
 import com.prashantsolanki.secureprefmanager.utils.SecureString;
 
+import static com.prashantsolanki.secureprefmanager.SecurePrefManagerInit.Configuration;
+import static com.prashantsolanki.secureprefmanager.SecurePrefManagerInit.isInit;
+
 
 /**
  *
@@ -23,38 +26,76 @@ public class SecurePrefManager {
 
     private Context context;
 
-    private SecurePrefManager(Context context,@Nullable String fileName,@Nullable Integer mode) {
+    Configuration configuration=null;
+
+    protected SecurePrefManager() {
+    }
+
+    /**
+     * Uses the default Encryption with provided file name.
+     *@param fileName Preference File Name
+     **/
+    protected SecurePrefManager(Context context,@Nullable String fileName) {
         this.context=context;
+
         if(fileName==null)
             pref = PreferenceManager.getDefaultSharedPreferences(context);
-        else if (mode !=null)
-            pref = context.getSharedPreferences(fileName, mode);
         else
             pref = context.getSharedPreferences(fileName, Context.MODE_PRIVATE);
+
+        configuration = SecurePrefManagerInit.getDefaultConfiguration();
+        editor = pref.edit();
+    }
+
+    protected SecurePrefManager(Context context) {
+        this.context=context;
+        configuration = SecurePrefManagerInit.getDefaultConfiguration();
+        pref = PreferenceManager.getDefaultSharedPreferences(context);
+        editor = pref.edit();
+    }
+
+
+    protected SecurePrefManager(Configuration configuration) {
+
+        this.context = configuration.getContext();
+        this.configuration = configuration;
+
+        if(configuration.getPreferenceFile()!=null&&!configuration.getPreferenceFile().isEmpty())
+            pref = context.getSharedPreferences(configuration.getPreferenceFile(), Context.MODE_PRIVATE);
+        else
+            pref = PreferenceManager.getDefaultSharedPreferences(context);
 
         editor = pref.edit();
     }
 
+    //TODO: Make a constructor with Configuration param.
+    /**Uses the default Configurations set in SecurePreferenceManagerInit.*/
     public static SecurePrefManager with(Context context){
-        if(!SecurePrefManagerInit.isInit())
+        if(!isInit())
             throw new IllegalStateException("SecurePrefManagerInit must be initialized before calling SecurePrefManager");
 
-        return new SecurePrefManager(context,null,null);
+        return new SecurePrefManager(context);
     }
 
+    @Deprecated
     public static SecurePrefManager with(Context context,String preferenceFileName){
-        if(!SecurePrefManagerInit.isInit())
+        if(!isInit())
             throw new IllegalStateException("SecurePrefManagerInit must be initialized before calling SecurePrefManager");
 
-        return new SecurePrefManager(context,preferenceFileName,Context.MODE_PRIVATE);
+        return new SecurePrefManager(context,preferenceFileName);
     }
+
+    public static SecurePrefManager with(Configuration configuration){
+        return new SecurePrefManager(configuration);
+    }
+
     public Deleter clear(){
         return new Deleter(null);
     }
 
     public Deleter remove(String key){
         try {
-            return new Deleter(SecurePrefManagerInit.getEncryptor().encrypt(key));
+            return new Deleter(configuration.getEncryptor().encrypt(key));
         }catch (Exception e){
             e.printStackTrace();
             return null;
@@ -62,7 +103,6 @@ public class SecurePrefManager {
     }
 
     public void hide(HidePreferences.PreferenceUpdateListener listener){
-
         new HidePreferences(context,true,listener);
     }
 
@@ -72,25 +112,27 @@ public class SecurePrefManager {
 
     public Setter set(String key){
         try {
-            return new Setter(SecurePrefManagerInit.getEncryptor().encrypt(key));
+            return new Setter(configuration.getEncryptor().encrypt(key),this);
         }catch (Exception e){
             e.printStackTrace();
             return null;
         }
     }
 
+    @Deprecated
     public Setter set(SecureString key) {
         try{
-        return new Setter(key.getSecureString());
+        return new Setter(key.getSecureString(),this);
         }catch (Exception e){
             e.printStackTrace();
             return null;
         }
     }
 
+    @Deprecated
     public Getter get(SecureString key){
         try {
-            return new Getter(key.getSecureString());
+            return new Getter(key.getSecureString(),this);
         }catch (Exception e){
             e.printStackTrace();
             return null;
@@ -100,7 +142,7 @@ public class SecurePrefManager {
 
     public Getter get(String key) {
         try{
-        return new Getter(SecurePrefManagerInit.getEncryptor().encrypt(key));
+        return new Getter(configuration.getEncryptor().encrypt(key),this);
     }catch (Exception e){
         e.printStackTrace();
             return null;
@@ -109,44 +151,47 @@ public class SecurePrefManager {
 
     public static class Getter{
         public String key;
+        private SecurePrefManager manager;
 
-        public Getter(String key) {
+        public Getter(String key, SecurePrefManager manager) {
             this.key = key;
+            this.manager = manager;
         }
 
         public DefaultValueString defaultValue(String defaultValue){
-            return new DefaultValueString(key,defaultValue);
+            return new DefaultValueString(key,manager,defaultValue);
         }
 
         public DefaultValueBoolean defaultValue(Boolean defaultValue){
-            return new DefaultValueBoolean(key,defaultValue);
+            return new DefaultValueBoolean(key,manager,defaultValue);
         }
 
         public DefaultValueInteger defaultValue(Integer defaultValue){
-            return new DefaultValueInteger(key,defaultValue);
+            return new DefaultValueInteger(key,manager,defaultValue);
         }
 
         public DefaultValueFloat defaultValue(Float defaultValue){
-            return new DefaultValueFloat(key,defaultValue);
+            return new DefaultValueFloat(key,manager,defaultValue);
         }
 
         public DefaultValueLong defaultValue(Long defaultValue){
-            return new DefaultValueLong(key,defaultValue);
+            return new DefaultValueLong(key,manager,defaultValue);
         }
 
         public static class DefaultValueString extends DefaultValue{
 
             String defaultValue;
 
-            public DefaultValueString(String key, String defaultValue) {
-                super(key);
+            public DefaultValueString(String key, SecurePrefManager manager, String defaultValue) {
+                super(key, manager);
                 this.defaultValue = defaultValue;
             }
+
             public String go() {
                 try {
-                    return SecurePrefManagerInit.getEncryptor()
+                    return manager.configuration.getEncryptor()
                             .decrypt(pref.getString(key,
-                                    SecurePrefManagerInit.getEncryptor()
+                                    manager.configuration.getEncryptor()
                                             .encrypt(String.valueOf(defaultValue))));
                 }catch (Exception e){
                     e.printStackTrace();
@@ -160,16 +205,16 @@ public class SecurePrefManager {
 
             Float defaultValue;
 
-            public DefaultValueFloat(String key, Float defaultValue) {
-                super(key);
+            public DefaultValueFloat(String key, SecurePrefManager manager, Float defaultValue) {
+                super(key, manager);
                 this.defaultValue = defaultValue;
             }
 
             public Float go(){
              try {
-                    return Float.parseFloat(SecurePrefManagerInit.getEncryptor()
+                    return Float.parseFloat(manager.configuration.getEncryptor()
                             .decrypt(pref.getString(key,
-                                    SecurePrefManagerInit.getEncryptor()
+                                    manager.configuration.getEncryptor()
                                             .encrypt(String.valueOf(defaultValue)))));
             }catch (Exception e){
                 e.printStackTrace();
@@ -184,15 +229,16 @@ public class SecurePrefManager {
 
             Long defaultValue;
 
-            public DefaultValueLong(String key, Long defaultValue) {
-                super(key);
+            public DefaultValueLong(String key, SecurePrefManager manager, Long defaultValue) {
+                super(key, manager);
                 this.defaultValue = defaultValue;
             }
+
             public Long go(){
              try {
-                    return Long.parseLong(SecurePrefManagerInit.getEncryptor()
+                    return Long.parseLong(manager.configuration.getEncryptor()
                             .decrypt(pref.getString(key,
-                                    SecurePrefManagerInit.getEncryptor()
+                                    manager.configuration.getEncryptor()
                                             .encrypt(String.valueOf(defaultValue)))));
             }catch (Exception e){
                 e.printStackTrace();
@@ -206,16 +252,16 @@ public class SecurePrefManager {
 
             Integer defaultValue;
 
-            public DefaultValueInteger(String key, Integer defaultValue) {
-                super(key);
+            public DefaultValueInteger(String key, SecurePrefManager manager, Integer defaultValue) {
+                super(key, manager);
                 this.defaultValue = defaultValue;
             }
 
             public Integer go(){
                     try {
-                        return Integer.parseInt(SecurePrefManagerInit.getEncryptor()
+                        return Integer.parseInt(manager.configuration.getEncryptor()
                                 .decrypt(pref.getString(key,
-                                        SecurePrefManagerInit.getEncryptor()
+                                        manager.configuration.getEncryptor()
                                                 .encrypt(String.valueOf(defaultValue)))));
                     }catch (Exception e){
                         e.printStackTrace();
@@ -229,14 +275,14 @@ public class SecurePrefManager {
 
             Boolean defaultValue;
 
-            public DefaultValueBoolean(String key, Boolean defaultValue) {
-                super(key);
+            public DefaultValueBoolean(String key, SecurePrefManager manager, Boolean defaultValue) {
+                super(key, manager);
                 this.defaultValue = defaultValue;
             }
 
             public Boolean go(){
                 try {
-                     return Boolean.parseBoolean(SecurePrefManagerInit.getEncryptor().decrypt(pref.getString(key, SecurePrefManagerInit.getEncryptor()
+                     return Boolean.parseBoolean(manager.configuration.getEncryptor().decrypt(pref.getString(key, manager.configuration.getEncryptor()
                              .encrypt(String.valueOf(defaultValue)))));
                 }catch (Exception e){
                     e.printStackTrace();
@@ -248,9 +294,11 @@ public class SecurePrefManager {
 
         public static abstract class DefaultValue{
             String key;
+            SecurePrefManager manager;
 
-            public DefaultValue(String key) {
+            public DefaultValue(String key, SecurePrefManager manager) {
                 this.key = key;
+                this.manager = manager;
             }
         }
     }
@@ -258,11 +306,13 @@ public class SecurePrefManager {
     public static class Setter{
         private String key;
         private String value;
+        SecurePrefManager manager;
 
-        public Setter(String key) {
+        public Setter(String key,SecurePrefManager manager) {
             if(key.length()<1)
                 throw new IllegalArgumentException("Key cannot be empty");
             this.key = key;
+            this.manager= manager;
         }
 
         public Setter value(String value){
@@ -299,7 +349,7 @@ public class SecurePrefManager {
                 throw new IllegalArgumentException("Value cannot be empty");
 
                 try{
-                value = SecurePrefManagerInit.getEncryptor().encrypt(value);
+                value = manager.configuration.getEncryptor().encrypt(value);
                 }catch (Exception e){
                     e.printStackTrace();
                     throw new IllegalArgumentException();
