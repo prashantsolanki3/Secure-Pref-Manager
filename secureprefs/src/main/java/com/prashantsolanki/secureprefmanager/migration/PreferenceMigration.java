@@ -1,13 +1,14 @@
 package com.prashantsolanki.secureprefmanager.migration;
 
-import android.content.Context;
+import android.support.annotation.NonNull;
 
-import com.prashantsolanki.secureprefmanager.SecurePrefManager;
-import com.prashantsolanki.secureprefmanager.encryptor.BlankEncryptor;
-import com.prashantsolanki.secureprefmanager.encryptor.Encryptor;
+import com.prashantsolanki.secureprefmanager.SPM;
+import com.prashantsolanki.secureprefmanager.SecurePrefManagerInit;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
+
+import io.github.prashantsolanki3.shoot.Shoot;
+import io.github.prashantsolanki3.shoot.listener.OnShootListener;
 
 /**
  * Package com.prashantsolanki.secureprefmanager
@@ -19,126 +20,190 @@ import java.util.Set;
  */
 public class PreferenceMigration {
 
-    Context context;
     String migrationId;
-    Encryptor oldEncryption,newEncryption;
-    String oldPreferenceFile,newPreferenceFile;
+    SecurePrefManagerInit.Configuration oldConfig=null,newConfig=null;
 
-
-    public Migrator setMigrationId(String migrationId){
+/*    public Migrator setMigrationId(String migrationId){
         this.migrationId = migrationId;
         return new Migrator();
+    }*/
+
+    public PreferenceMigration migrate(final String key, final Integer defaultValue){
+        Shoot.once(key, new OnShootListener() {
+            @Override
+            public void onExecute(int scope, String TAG, int iteration) {
+                SPM.with(newConfig)
+                        .set(key)
+                        .value(getValue(key,defaultValue))
+                        .go();
+                removePreference(key);
+            }
+        });
+        return this;
     }
 
-    private PreferenceMigration( Context context, Encryptor oldEncryption, Encryptor newEncryption, String oldPreferenceFile, String newPreferenceFile) {
-
-        if(oldEncryption==null)
-            this.oldEncryption = new BlankEncryptor(context);
-        else
-            this.oldEncryption = oldEncryption;
-
-        if (newEncryption!=null)
-            this.newEncryption = newEncryption;
-        else
-            this.newEncryption = new BlankEncryptor(context);
-
-        this.oldPreferenceFile = oldPreferenceFile;
-        this.newPreferenceFile = newPreferenceFile;
-
-        this.context = context;
+    public PreferenceMigration migrate(final String key, final Float defaultValue){
+        Shoot.once(key, new OnShootListener() {
+            @Override
+            public void onExecute(int scope, String TAG, int iteration) {
+                SPM.with(newConfig)
+                        .set(key)
+                        .value(getValue(key,defaultValue))
+                        .go();
+                removePreference(key);
+            }
+        });
+        return this;
     }
 
-    public class Migrator {
+    public PreferenceMigration migrate(final String key, final String defaultValue){
+        Shoot.once(key, new OnShootListener() {
+            @Override
+            public void onExecute(int scope, String TAG, int iteration) {
+                SPM.with(newConfig)
+                        .set(key)
+                        .value(getValue(key,defaultValue))
+                        .go();
+                removePreference(key);
+            }
+        });
+        return this;
+    }
 
-        Set<String> keys;
-        private MigrationListener listener=null;
+    public PreferenceMigration migrate(final String key, final Long defaultValue){
+        Shoot.once(key, new OnShootListener() {
+            @Override
+            public void onExecute(int scope, String TAG, int iteration) {
+                SPM.with(newConfig)
+                        .set(key)
+                        .value(getValue(key,defaultValue))
+                        .go();
+                removePreference(key);
+            }
+        });
+        return this;
+    }
 
-        public Migrator() {
-            this.keys = new HashSet<>();
-        }
+    public PreferenceMigration migrate(final String key, final Boolean defaultValue){
+        Shoot.once(key, new OnShootListener() {
+            @Override
+            public void onExecute(int scope, String TAG, int iteration) {
+                SPM.with(newConfig)
+                        .set(key)
+                        .value(getValue(key,defaultValue))
+                        .go();
+                removePreference(key);
+            }
+        });
+        return this;
+    }
 
-        //TODO: make all the default value methods.
-        //TODO: try HashMap for multiple preference. <KEY,DEFAULTVALUE(Object)>
-        //TODO: make a method to check the instance of defaultValue and return the corresponding object.
-        //TODO: make fetching and setting methods and implement listeners
-        public Migrator setPreferenceKey(String key,boolean defaultValue){
-            this.keys.add(key);
-            return this;
-        }
+    public void migrateAll(MigrationListener listener){
+        Map map = SPM.with(oldConfig)
+                .getAllPreferences();
+        for(Object o:map.keySet()){
+            if(map.get(o) instanceof Integer||
+                    map.get(o) instanceof String||
+                    map.get(o) instanceof Long||
+                    map.get(o) instanceof Boolean||
+                    map.get(o) instanceof Float){
+                //TODO: Complete migrateAll
+                // TODO: Support Objects in Default Value and Support To serialize objects and save in preferences.
+                /*SPM.with(newConfig)
+                        .set((String)o)
+                        .value(getValue((String)o,map.get(o)))
+                        .go();*/
 
-        public Migrator setPreferenceKeys(Set<String> keys){
-            this.keys.addAll(keys);
-            return this;
-        }
-
-        public void migrate(){
-
-        }
-
-        public void migrate(MigrationListener listener){
-
-        }
-
-        private void internalMigrate(){
-            for(String key:keys){
-
-                //Init Using old Encryptor and File.
-                //Fetch old value.
-
-                //Switch to new Encryptor and same or defined file.
-                //Set the new value.
-
-                //Delete previous values.
+                removePreference((String)o);
             }
         }
+    }
 
-        private void fetch(){
-            SecurePrefManager.with(context, oldPreferenceFile)
-                    .get("")
-                    .defaultValue(true)
-                    .go();
+
+    private void removePreference(String key){
+        SPM.with(oldConfig)
+                .remove(key)
+                .confirm();
+    }
+
+    private Integer getValue(String key,Integer defaultValue){
+       return SPM.with(oldConfig)
+                .get(key)
+                .defaultValue(defaultValue)
+                .go();
+    }
+
+    private String getValue(String key,String defaultValue){
+        return SPM.with(oldConfig)
+                .get(key)
+                .defaultValue(defaultValue)
+                .go();
+    }
+
+    private Boolean getValue(String key,Boolean defaultValue){
+        return SPM.with(oldConfig)
+                .get(key)
+                .defaultValue(defaultValue)
+                .go();
+    }
+
+    private Long getValue(String key,Long defaultValue){
+        return SPM.with(oldConfig)
+                .get(key)
+                .defaultValue(defaultValue)
+                .go();
+    }
+
+    private Float getValue(String key, Float defaultValue){
+        return SPM.with(oldConfig)
+                .get(key)
+                .defaultValue(defaultValue)
+                .go();
+    }
+
+    private PreferenceMigration(@NonNull SecurePrefManagerInit.Configuration oldConfig,
+                                @NonNull SecurePrefManagerInit.Configuration newConfig) {
+        this.oldConfig = oldConfig;
+        this.newConfig = newConfig;
+        Shoot.with(newConfig.getContext());
+    }
+
+    public abstract class MigrationListener{
+        abstract void progress(int current,int total);
+        private void internalMigrate(){
+            //Init Using oldConfig
+            //Fetch old value.
+
+            //Switch to new Encryptor and same or defined file.
+            //Set the new value.
+
+            //Delete previous values.
         }
     }
 
-    public interface MigrationListener{
-       void progress(int current,int total);
-    }
-
-
+    /**
+     * Builder
+     * */
     public static class Builder {
 
-        Context context=null;
-        Encryptor oldEncryption=null,newEncryption=null;
-        String oldPreferenceFile=null,newPreferenceFile=null;
+        SecurePrefManagerInit.Configuration oldConfig=null,newConfig=null;
 
-        public Builder(Context mContext) {
-            context = mContext;
-        }
-        /** Optional: Sets the old Encryption Technique used to store the old preferences. No Encryption used if not specified.*/
-        public Builder setOldEncryption(Encryptor oldEncryption) {
-            this.oldEncryption = oldEncryption;
-            return this;
-        }
-        /** Optional: Sets the new Encryption Technique. No Encryption done if not specified.*/
-        public Builder setNewEncryption(Encryptor newEncryption) {
-            this.newEncryption = newEncryption;
+        public Builder setOldConfiguration(@NonNull SecurePrefManagerInit.Configuration oldConfig) {
+            this.oldConfig = oldConfig;
             return this;
         }
 
-        /** Optional: The File where Preferences are store. Default preference file used if not specified*/
-        public Builder setOldPreferenceFile(String oldPreferenceFile) {
-            this.oldPreferenceFile = oldPreferenceFile;
-            return this;
-        }
-
-        /** Optional: Preference Saved to same file if newPreferenceFile is not specified.*/
-        public Builder setNewPreferenceFile(String newPreferenceFile) {
-            this.newPreferenceFile = newPreferenceFile;
+        public Builder setNewConfiguration(@NonNull SecurePrefManagerInit.Configuration newConfig) {
+            this.newConfig = newConfig;
             return this;
         }
 
         public PreferenceMigration build(){
-            return new PreferenceMigration(context,oldEncryption,newEncryption,oldPreferenceFile,newPreferenceFile);
+
+            if(newConfig==null||oldConfig==null)
+                throw new RuntimeException("Configurations cannot be null");
+
+            return new PreferenceMigration(oldConfig,newConfig);
         }
     }
 

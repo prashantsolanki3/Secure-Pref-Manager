@@ -28,4 +28,5 @@ dependencies {
     compile 'com.android.support:support-annotations:23.1.1'
     compile 'com.scottyab:aescrypt:0.0.1'
     compile 'com.google.code.gson:gson:2.4'
+    compile 'com.github.prashantsolanki3:Shoot:0.8.2'
 }

@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import com.prashantsolanki.secureprefmanager.utils.HidePreferences;
 import com.prashantsolanki.secureprefmanager.utils.SecureString;
 
+import java.util.Map;
+
 import static com.prashantsolanki.secureprefmanager.SecurePrefManagerInit.Configuration;
 import static com.prashantsolanki.secureprefmanager.SecurePrefManagerInit.isInit;
 
@@ -19,9 +21,9 @@ import static com.prashantsolanki.secureprefmanager.SecurePrefManagerInit.isInit
 public class SecurePrefManager {
 
     // Shared Preferences
-    static SharedPreferences pref;
+    SharedPreferences pref;
     // Editor for Shared preferences
-    static SharedPreferences.Editor editor;
+    SharedPreferences.Editor editor;
     public static boolean isHidden;
 
     private Context context;
@@ -29,6 +31,7 @@ public class SecurePrefManager {
     Configuration configuration=null;
 
     protected SecurePrefManager() {
+
     }
 
     /**
@@ -90,12 +93,12 @@ public class SecurePrefManager {
     }
 
     public Deleter clear(){
-        return new Deleter(null);
+        return new Deleter(this,null);
     }
 
     public Deleter remove(String key){
         try {
-            return new Deleter(configuration.getEncryptor().encrypt(key));
+            return new Deleter(this,configuration.getEncryptor().encrypt(key));
         }catch (Exception e){
             e.printStackTrace();
             return null;
@@ -190,7 +193,7 @@ public class SecurePrefManager {
             public String go() {
                 try {
                     return manager.configuration.getEncryptor()
-                            .decrypt(pref.getString(key,
+                            .decrypt(manager.pref.getString(key,
                                     manager.configuration.getEncryptor()
                                             .encrypt(String.valueOf(defaultValue))));
                 }catch (Exception e){
@@ -213,7 +216,7 @@ public class SecurePrefManager {
             public Float go(){
              try {
                     return Float.parseFloat(manager.configuration.getEncryptor()
-                            .decrypt(pref.getString(key,
+                            .decrypt(manager.pref.getString(key,
                                     manager.configuration.getEncryptor()
                                             .encrypt(String.valueOf(defaultValue)))));
             }catch (Exception e){
@@ -237,7 +240,7 @@ public class SecurePrefManager {
             public Long go(){
              try {
                     return Long.parseLong(manager.configuration.getEncryptor()
-                            .decrypt(pref.getString(key,
+                            .decrypt(manager.pref.getString(key,
                                     manager.configuration.getEncryptor()
                                             .encrypt(String.valueOf(defaultValue)))));
             }catch (Exception e){
@@ -260,7 +263,7 @@ public class SecurePrefManager {
             public Integer go(){
                     try {
                         return Integer.parseInt(manager.configuration.getEncryptor()
-                                .decrypt(pref.getString(key,
+                                .decrypt(manager.pref.getString(key,
                                         manager.configuration.getEncryptor()
                                                 .encrypt(String.valueOf(defaultValue)))));
                     }catch (Exception e){
@@ -282,7 +285,8 @@ public class SecurePrefManager {
 
             public Boolean go(){
                 try {
-                     return Boolean.parseBoolean(manager.configuration.getEncryptor().decrypt(pref.getString(key, manager.configuration.getEncryptor()
+                     return Boolean.parseBoolean(manager.configuration.getEncryptor()
+                             .decrypt(manager.pref.getString(key, manager.configuration.getEncryptor()
                              .encrypt(String.valueOf(defaultValue)))));
                 }catch (Exception e){
                     e.printStackTrace();
@@ -355,18 +359,19 @@ public class SecurePrefManager {
                     throw new IllegalArgumentException();
                 }
 
-            editor.putString(key, value);
-            editor.apply();
+            manager.editor.putString(key, value);
+            manager.editor.apply();
         }
     }
-
 
     public static class Deleter{
 
         final String valueToBeDeleted;
+        private SecurePrefManager manager;
 
-        public Deleter(@Nullable String valueToBeDeleted) {
+        public Deleter(SecurePrefManager manager,@Nullable String valueToBeDeleted) {
             this.valueToBeDeleted = valueToBeDeleted;
+            this.manager = manager;
         }
 
         /**
@@ -375,13 +380,18 @@ public class SecurePrefManager {
         public void confirm(){
 
             if(valueToBeDeleted!=null)
-                editor.remove(valueToBeDeleted);
+                manager.editor.remove(valueToBeDeleted);
             else
-                editor.clear();
+                manager.editor.clear();
 
-            editor.apply();
+            manager.editor.apply();
 
         }
+    }
+
+    public Map getAllPreferences(){
+        isInit();
+        return pref.getAll();
     }
 
 }
