@@ -3,12 +3,11 @@ package com.prashantsolanki.secureprefmanager.migration;
 import android.support.annotation.NonNull;
 
 import com.prashantsolanki.secureprefmanager.SPM;
-import com.prashantsolanki.secureprefmanager.SecurePrefManagerInit;
-
-import java.util.Map;
 
 import io.github.prashantsolanki3.shoot.Shoot;
 import io.github.prashantsolanki3.shoot.listener.OnShootListener;
+
+import static com.prashantsolanki.secureprefmanager.SecurePrefManagerInit.Configuration;
 
 /**
  * Package com.prashantsolanki.secureprefmanager
@@ -20,13 +19,7 @@ import io.github.prashantsolanki3.shoot.listener.OnShootListener;
  */
 public class PreferenceMigration {
 
-    String migrationId;
-    SecurePrefManagerInit.Configuration oldConfig=null,newConfig=null;
-
-/*    public Migrator setMigrationId(String migrationId){
-        this.migrationId = migrationId;
-        return new Migrator();
-    }*/
+    Configuration oldConfig=null,newConfig=null;
 
     public PreferenceMigration migrate(final String key, final Integer defaultValue){
         Shoot.once(key, new OnShootListener() {
@@ -90,7 +83,7 @@ public class PreferenceMigration {
             public void onExecute(int scope, String TAG, int iteration) {
                 SPM.with(newConfig)
                         .set(key)
-                        .value(getValue(key,defaultValue))
+                        .value(getValue(key, defaultValue))
                         .go();
                 removePreference(key);
             }
@@ -98,26 +91,43 @@ public class PreferenceMigration {
         return this;
     }
 
-    public void migrateAll(MigrationListener listener){
-        Map map = SPM.with(oldConfig)
-                .getAllPreferences();
-        for(Object o:map.keySet()){
-            if(map.get(o) instanceof Integer||
-                    map.get(o) instanceof String||
-                    map.get(o) instanceof Long||
-                    map.get(o) instanceof Boolean||
-                    map.get(o) instanceof Float){
-                //TODO: Complete migrateAll
-                // TODO: Support Objects in Default Value and Support To serialize objects and save in preferences.
-                /*SPM.with(newConfig)
-                        .set((String)o)
-                        .value(getValue((String)o,map.get(o)))
-                        .go();*/
+    /*public void migrateAll(final MigrationListener listener){
+        Shoot.once(oldConfig.getPreferenceFile() + newConfig.getPreferenceFile(), new OnShootListener() {
+            @Override
+            public void onExecute(int a, String s, int a1) {
+                Map map = SPM.with(oldConfig)
+                        .getAllPreferences();
+                int i = 0;
 
-                removePreference((String)o);
+                for (Object o : map.keySet()) {
+                    i++;
+
+
+                    if (map.get(o) instanceof Integer)
+                        migrate((String) o, (Integer) map.get(o));
+
+                    else if (map.get(o) instanceof Long)
+                        migrate((String) o,(Long) map.get(o));
+
+                    else if (map.get(o) instanceof Boolean)
+                        migrate((String) o, (Boolean) map.get(o));
+
+                    else if (map.get(o) instanceof Float)
+                        migrate((String) o, (Float) map.get(o));
+
+                    if (map.get(o) instanceof String)
+                        migrate((String) o, (String) map.get(o));
+                    else
+                        Log.e("Preference Migration","Type not supported");
+
+                    listener.onPreferenceMigrated((String) o, getValue((String) o, (String) map.get(o)), i, map.keySet().size());
+                }
+
+                listener.onComplete(i);
             }
-        }
-    }
+        });
+
+    }*/
 
 
     private void removePreference(String key){
@@ -154,6 +164,13 @@ public class PreferenceMigration {
                 .go();
     }
 
+/*    private String getValue(String key, Object defaultValue){
+        return SPM.with(oldConfig)
+                .get(key)
+                .defaultValue(defaultValue)
+                .go();
+    }*/
+
     private Float getValue(String key, Float defaultValue){
         return SPM.with(oldConfig)
                 .get(key)
@@ -161,24 +178,16 @@ public class PreferenceMigration {
                 .go();
     }
 
-    private PreferenceMigration(@NonNull SecurePrefManagerInit.Configuration oldConfig,
-                                @NonNull SecurePrefManagerInit.Configuration newConfig) {
+    private PreferenceMigration(@NonNull Configuration oldConfig,
+                                @NonNull Configuration newConfig) {
         this.oldConfig = oldConfig;
         this.newConfig = newConfig;
         Shoot.with(newConfig.getContext());
     }
 
-    public abstract class MigrationListener{
-        abstract void progress(int current,int total);
-        private void internalMigrate(){
-            //Init Using oldConfig
-            //Fetch old value.
-
-            //Switch to new Encryptor and same or defined file.
-            //Set the new value.
-
-            //Delete previous values.
-        }
+    public interface MigrationListener{
+        void onPreferenceMigrated(String key, Object value,int current,int total);
+        void onComplete(int totalMigrations);
     }
 
     /**
@@ -186,14 +195,14 @@ public class PreferenceMigration {
      * */
     public static class Builder {
 
-        SecurePrefManagerInit.Configuration oldConfig=null,newConfig=null;
+        Configuration oldConfig=null,newConfig=null;
 
-        public Builder setOldConfiguration(@NonNull SecurePrefManagerInit.Configuration oldConfig) {
+        public Builder setOldConfiguration(@NonNull Configuration oldConfig) {
             this.oldConfig = oldConfig;
             return this;
         }
 
-        public Builder setNewConfiguration(@NonNull SecurePrefManagerInit.Configuration newConfig) {
+        public Builder setNewConfiguration(@NonNull Configuration newConfig) {
             this.newConfig = newConfig;
             return this;
         }

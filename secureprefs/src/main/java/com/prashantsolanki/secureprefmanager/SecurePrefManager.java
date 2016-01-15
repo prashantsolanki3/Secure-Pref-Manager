@@ -53,7 +53,10 @@ public class SecurePrefManager {
     protected SecurePrefManager(Context context) {
         this.context=context;
         configuration = SecurePrefManagerInit.getDefaultConfiguration();
-        pref = PreferenceManager.getDefaultSharedPreferences(context);
+        if(configuration.getPreferenceFile()!=null&&!configuration.getPreferenceFile().isEmpty())
+            pref = context.getSharedPreferences(configuration.getPreferenceFile(), Context.MODE_PRIVATE);
+        else
+            pref = PreferenceManager.getDefaultSharedPreferences(context);
         editor = pref.edit();
     }
 
@@ -181,128 +184,109 @@ public class SecurePrefManager {
             return new DefaultValueLong(key,manager,defaultValue);
         }
 
-        public static class DefaultValueString extends DefaultValue{
-
-            String defaultValue;
+        public static class DefaultValueString extends DefaultValue<String>{
 
             public DefaultValueString(String key, SecurePrefManager manager, String defaultValue) {
-                super(key, manager);
-                this.defaultValue = defaultValue;
+                super(key, manager, defaultValue);
             }
 
             public String go() {
-                try {
-                    return manager.configuration.getEncryptor()
-                            .decrypt(manager.pref.getString(key,
-                                    manager.configuration.getEncryptor()
-                                            .encrypt(String.valueOf(defaultValue))));
-                }catch (Exception e){
-                    e.printStackTrace();
-                    return defaultValue;
-                }
+                return value();
             }
 
         }
 
-        public static class DefaultValueFloat extends DefaultValue{
-
-            Float defaultValue;
+        public static class DefaultValueFloat extends DefaultValue<Float>{
 
             public DefaultValueFloat(String key, SecurePrefManager manager, Float defaultValue) {
-                super(key, manager);
-                this.defaultValue = defaultValue;
+                super(key, manager, defaultValue);
             }
 
             public Float go(){
-             try {
-                    return Float.parseFloat(manager.configuration.getEncryptor()
-                            .decrypt(manager.pref.getString(key,
-                                    manager.configuration.getEncryptor()
-                                            .encrypt(String.valueOf(defaultValue)))));
-            }catch (Exception e){
-                e.printStackTrace();
-                return null;
-            }
+                return Float.parseFloat(value());
             }
 
             }
 
 
-        public static class DefaultValueLong extends DefaultValue {
-
-            Long defaultValue;
+        public static class DefaultValueLong extends DefaultValue<Long> {
 
             public DefaultValueLong(String key, SecurePrefManager manager, Long defaultValue) {
-                super(key, manager);
-                this.defaultValue = defaultValue;
+                super(key, manager,defaultValue);
             }
 
             public Long go(){
-             try {
-                    return Long.parseLong(manager.configuration.getEncryptor()
-                            .decrypt(manager.pref.getString(key,
-                                    manager.configuration.getEncryptor()
-                                            .encrypt(String.valueOf(defaultValue)))));
-            }catch (Exception e){
-                e.printStackTrace();
-                return null;
-            }
+                return Long.parseLong(value());
             }
 
         }
 
-        public static class DefaultValueInteger extends DefaultValue{
-
-            Integer defaultValue;
+        public static class DefaultValueInteger extends DefaultValue<Integer>{
 
             public DefaultValueInteger(String key, SecurePrefManager manager, Integer defaultValue) {
-                super(key, manager);
-                this.defaultValue = defaultValue;
+                super(key, manager,defaultValue);
             }
 
+            @Override
             public Integer go(){
-                    try {
-                        return Integer.parseInt(manager.configuration.getEncryptor()
-                                .decrypt(manager.pref.getString(key,
-                                        manager.configuration.getEncryptor()
-                                                .encrypt(String.valueOf(defaultValue)))));
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    return null;
-                }
+                        return Integer.parseInt(value());
             }
-
         }
 
-        public static class DefaultValueBoolean extends DefaultValue{
 
-            Boolean defaultValue;
+        public static class DefaultValueBoolean extends DefaultValue<Boolean>{
+
 
             public DefaultValueBoolean(String key, SecurePrefManager manager, Boolean defaultValue) {
-                super(key, manager);
-                this.defaultValue = defaultValue;
+                super(key, manager, defaultValue);
             }
 
             public Boolean go(){
+                return Boolean.parseBoolean(value());
+            }
+
+        }
+
+
+        public static class DefaultValueObject extends DefaultValue<String>{
+
+            public DefaultValueObject(String key, SecurePrefManager manager, String defaultValue) {
+                super(key, manager, defaultValue);
+            }
+
+            @Override
+            public String go() {
+                return value();
+            }
+        }
+
+/*        public DefaultValueObject defaultValue(Object defaultValue){
+            Gson gson =  new Gson();
+            return new DefaultValueObject(key,manager,gson.toJson(defaultValue));
+        }*/
+
+        public static abstract class DefaultValue<T>{
+            String key;
+            SecurePrefManager manager;
+            T defaultValue;
+
+            public DefaultValue(String key, SecurePrefManager manager, T defaultValue) {
+                this.key = key;
+                this.manager = manager;
+                this.defaultValue = defaultValue;
+            }
+
+            public abstract T go();
+
+            public String value(){
                 try {
-                     return Boolean.parseBoolean(manager.configuration.getEncryptor()
-                             .decrypt(manager.pref.getString(key, manager.configuration.getEncryptor()
-                             .encrypt(String.valueOf(defaultValue)))));
+                    return manager.configuration.getEncryptor()
+                            .decrypt(manager.pref.getString(key, manager.configuration.getEncryptor()
+                                    .encrypt(String.valueOf(defaultValue))));
                 }catch (Exception e){
                     e.printStackTrace();
                     return null;
                 }
-                }
-
-        }
-
-        public static abstract class DefaultValue{
-            String key;
-            SecurePrefManager manager;
-
-            public DefaultValue(String key, SecurePrefManager manager) {
-                this.key = key;
-                this.manager = manager;
             }
         }
     }
@@ -343,6 +327,11 @@ public class SecurePrefManager {
             this.value=String.valueOf(value);
             return this;
         }
+
+        /*public Setter value(Object value){
+            this.value=new Gson().toJson(value);
+            return this;
+        }*/
 
         /**
          * Sets the the given value to preferences.

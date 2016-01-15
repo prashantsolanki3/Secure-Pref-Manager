@@ -3,9 +3,11 @@ package com.prashantsolanki.secureprefsample;
 import android.app.Application;
 
 import com.prashantsolanki.secureprefmanager.SPM;
-import com.prashantsolanki.secureprefmanager.SecurePrefManager;
 import com.prashantsolanki.secureprefmanager.SecurePrefManagerInit;
-import com.prashantsolanki.secureprefmanager.encryptor.BlowFishEncryptor;
+import com.prashantsolanki.secureprefmanager.encryptor.AESEncryptor;
+
+import io.github.prashantsolanki3.shoot.Shoot;
+import io.github.prashantsolanki3.shoot.listener.OnShootListener;
 
 /**
  * Created by Prashant on 11/7/2015.
@@ -16,63 +18,43 @@ public class AppController extends Application{
     public void onCreate() {
         super.onCreate();
 
+        final SecurePrefManagerInit.Configuration defaultConfig = new SecurePrefManagerInit.Configuration(this)
+                .setCustomEncryption(new AESEncryptor(this))
+                .setPreferenceFile("to_migrate");
+
         try {
-
             new SecurePrefManagerInit.Initializer(this)
-                    .useEncryption(true)
-                    .setCustomEncryption(new BlowFishEncryptor(getApplicationContext()))
+                    .setDefaultConfiguration(defaultConfig)
                     .initialize();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Shoot.with(getApplicationContext());
 
-
-        SecurePrefManager.with(getApplicationContext())
-                .clear()
-                .confirm();
-
-        SecurePrefManager.with(getApplicationContext(),"yo")
-                .clear()
-                .confirm();
-
-        SecurePrefManager.with(getApplicationContext(),"whatsup")
-                .clear()
-                .confirm();
-
-
-        for(int i =0;i<25;++i) {
-            SecurePrefManager.with(getApplicationContext(),"yo")
-                    .set("String" + i)
-                    .value("value" + i)
-                    .go();
-
-            SecurePrefManager.with(getApplicationContext(),"whatsup")
-                    .set("int" + i)
-                    .value(i)
-                    .go();
-
-            SecurePrefManager.with(getApplicationContext(),"yeaaah")
-                    .set("bool" + i)
-                    .value(i % 2 == 0)
-                    .go();
-
-            SecurePrefManager.with(getApplicationContext())
-                    .set("long" + i)
-                    .value(Long.valueOf("" + i))
-                    .go();
-
-            SPM.with(new SecurePrefManagerInit.Configuration(getApplicationContext())
-                    .setPreferenceFile("config"))
-            .set("config_test"+i)
-            .value(i)
-            .go();
-
-        }
-
-
-
-
+        Shoot.once("init", new OnShootListener() {
+            @Override
+            public void onExecute(int i, String s, int i1) {
+                SPM.with(defaultConfig)
+                        .set("String_test")
+                        .value("Shit");
+                SPM.with(defaultConfig)
+                        .set("Int_test")
+                        .value(10)
+                        .go();
+                SPM.with(defaultConfig)
+                        .set("float")
+                        .value(1.5f)
+                        .go();
+                SPM.with(defaultConfig)
+                        .set("long")
+                        .value(105l)
+                        .go();
+                SPM.with(defaultConfig)
+                        .set("bool")
+                        .value(true)
+                        .go();
+            }
+        });
 
     }
 
